@@ -17,25 +17,25 @@
 
 UNAME    := $(shell uname -a)
 
+JAVA_INCDIR      = $(JAVA_HOME)/include
+JAVA_INCDIR_PLAF = $(dir $(wildcard $(JAVA_INCDIR)/*/jni_md.h))
+
 CC       = gcc
 SHARED   = -shared
-CFLAGS   = -Wall -O2 -pipe -D_REENTRANT
-CPPFLAGS =
+CFLAGS   = -Wall -O2 -pipe -D_REENTRANT -ansi
 LDFLAGS  = 
 LIBNAME  = librocksaw
 LIBEXTENSION = so
-
-JAVA_INCDIR      = $(JAVA_HOME)/include
-JAVA_INCDIR_PLAF = $(dir $(wildcard $(JAVA_INCDIR)/*/jni_md.h))
 
 ifneq (,$(findstring windows32,$(UNAME)))
 	CC = x86_64-w64-mingw32-gcc
 	CPPFLAGS += -D__int64="long long"
 	LDFLAGS += -lWS2_32
 	LIBEXTENSION = dll
+else
+	CFLAGS += -fpic -pthread
 endif
 
-CFLAGS += -ansi
 CPPFLAGS = -I$(JAVA_INCDIR) -I$(JAVA_INCDIR_PLAF)
 
 SRC := $(wildcard *.c)
