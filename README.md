@@ -17,111 +17,34 @@ Corporation (www.savarese.com).
 
 ### Requirements
 
-The 1.0.1 version of RockSaw has been compiled and tested on
-Linux, Win32 with Cygwin/MinGW/Winsock or Visual C++, Solaris 8/9/10,
-FreeBSD 5.3/7.1 and Darwin/Mac OS X 10.5.6.  It should compile on other
-POSIX systems using the GNU tool chain.
+The 1.1.0 version of RockSaw has been compiled and tested on Linux,
+Win32 with Cygwin/MinGW/Winsock or Visual C++, and Mac OS X 10.11.4. It
+should compile on other POSIX systems using the GNU tool chain.
 
-The Ping.java example program requires VServ TCP/IP
-(http://www.savarese.org/software/vserv-tcpip/) to
-compile because it uses the ICMPEchoPacket class.
+No binary distributions are presently released; you will have to compile
+for yourself.
 
-librocksaw.so in the binary distribution is pre-compiled for 32-bit
-Linux i386, rocksaw.dll is pre-compiled for Win32 using Visual C++,
-librocksaw.jnilib is pre-compiled for 32-bit Mac OS X using gcc.
-
-J2SE 1.3 or greater is required to compile because of the use of
-Runtime.addShutdownHook on Win32.  If you have a need to support
-J2SE 1.2, we can find another solution for calling WSACleanup on
-Win32 platforms.
-
-Winsock2 (ws2_32.dll) is required on Win32 platforms.
+Java 1.8 or greater is required to compile/run.
 
 ### Compiling
 
-You must have the JDK_HOME environment variable set and pointing to
+You must have the JAVA_HOME environment variable set and pointing to
 the directory where the Java Development Kit is installed.  Otherwise,
-the JNI headers will not be found.  RockSaw has been tested primarily
-with J2SE 5 JDK 1.5, but it compiles with the J2SE 2 1.3, and 1.4
-SDKs.  Only the Ping.java example program requires J2SE 5.
+the JNI headers will not be found.
 
-The source code requires Apache Ant (http://ant.apache.org/), GNU
-make, and GCC to compile.  On Windows, you must either have Visual C++
-installed or have Cygwin and MinGW installed with support for the
-Cygwin GCC -mno-cygwin option (http://www.cygwin.com/).  Autoconf
-support may be added somewhere down the line if warranted.
+The project requires `maven` to build; The command `mvn clean package`
+should be sufficient to compile the JAR and associated library.
 
-The command
+There are very few files in the source tree:
 
-  ant -projecthelp
-
-will list all build targets in build.xml.  There are very few files
-in the source tree:
-
-  src/java  Java source code
-  src/jni   The C JNI source and Makefile
-
-When you compile the source with
-
-  ant jar
-
-the C source will also be built by execing a call to gmake in src/jni.
-A jar file and shared library will be created and placed in the lib/
-directory.  They will be called:
-
-  rocksaw-version.jar
-  librocksaw.so
-
-Currently there is no version number for the shared library.  On
-Win32 systems, the shared library will be called:
-
-  rocksaw.dll
-
-The version of Winsock linked to on Windows can be changed with
-the jni.winsock property.  By default, it is set to ws2_32,
-which is Winsock2.
-
-On Mac OS X, the shared library will be called:
-
-  librocksaw.jnilib
-
-#### J2SE 1.4/1.3/1.2
-
-You may have to override the javac.args, javac.source, and
-javac.target properties because the -Xlint:unchecked parameter
-is only valid for J2SE 5.  For example, to compile for
-J2SE 1.3:
-
- ant -Djavac.args="" -Djavac.source=1.3 -Djavac.target=1.3 jar
+  - src/main/java Java source code
+  - src/main/native The C JNI source and Makefile
 
 #### Note about make
 
-The default Makefile requires GNU make.  Prior to version 1.0.1,
-build.properties used to define jni.make as gmake, but the most
-common platforms using the GNU development tool chain these days
-do not install GNU make as gmake.  In order to accommodate the
-common case, you must now use:
+The default Makefile requires GNU make.
 
-  ant -Djni.make=gmake
-
-on systems where the default make command is not GNU make (most
-likely Solaris and some flavors of BSD).
-
-#### Win32: CYGWIN
-
-[Note, this section no longer applies now that 'make' is used by
- default instead of 'gmake'.]
-
-When compiling with cygwin, you may need to redefine the jni.make
-property because it is set to "gmake" by default.  Cygwin doesn't
-include a gmake executable for GNU Make.  It is named only make.
-Therefore, you may have to use the following command line:
-
-  ant -Djni.make=make jar
-
-Alternatively, you can edit the build.properties file.
-
-#### Win32: Visual C++
+#### Win32: Visual C++ (Outdated Instructions)
 
 To compile using Visual C++, you have to override the default
 compiler command, make command, and makefile properties:
@@ -141,31 +64,16 @@ you've run either the vcvars.bat or vsvars32.bat command
 (depending on the version of Visual C++ you're using) to set
 your paths for the command line tools.
 
-#### Darwin/MacOS X
+#### Mac OS X
 
-Be sure to set JAVA_HOME to the right location.  It is usually
-  /System/Library/Frameworks/JavaVM.framework/Home
-Also, if you want to compile the Ping.java example program,
-you will need to install JDK 1.5 or greater.
+Be sure to set JAVA_HOME to the right location. It will typically be
+something like
+`/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home`.
 
-  export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Home
-  ant -Djni.make=make
-
-#### Ping Example
-
-The example Ping program can be compiled separately with the
-example.compile target, but requires VServ TCP/IP to compile.  The
-classpath.vserv-tcpip property in build.properties must point to the
-VServ TCP/IP jar, which by default is expected to be present in the
-lib/ directory.  Then you can compile the program with:
-
-  ant example.compile
-
-To test the example program from the root source directory you
-could run a command similar to the following:
-
-  java -classpath build.src:lib/rocksaw-1.0.0.jar:lib/vserv-tcpip-0.9.1.jar \
-       -Djava.library.path=lib/ example.Ping 10.0.0.1 10
+  ```
+  export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home
+  mvn clean pacakge
+  ```
 
 ### Licensing
 
@@ -177,11 +85,10 @@ and licensed under the Apache License 2.0 as described in the files:
   LICENSE
   NOTICE
 
-
 ### Notes
 
 On most operating systems, you must have root access or administrative
-privileges to use raw sockets.
+privileges to use raw sockets.  If you are running a firewall, you will have to make sure it allows ICMP requests through.
 
 The API is minimalist, yet functional. Don't hesitate to submit patches
 that enhance the functionality.
