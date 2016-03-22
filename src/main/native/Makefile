@@ -58,18 +58,22 @@ CLEAN_EXTENSIONS = o $(LIBEXTENSION)
 
 LIBROCKSAW = $(LIBNAME).$(LIBEXTENSION)
 
-.PHONY: clean directories
+.PHONY: clean directories move_target
 
-all: directories $(LIBROCKSAW)
+all: directories $(LIBROCKSAW) move_target
 
 directories:
 	$(MKDIR_P) $(OUT_DIR)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $(OUT_DIR)/$@
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(LIBROCKSAW): $(OBJ)
-	$(CC) $(SHARED) -o $(OUT_DIR)/$@ $(OUT_DIR)/$^ $(LDFLAGS)
+	$(CC) $(SHARED) -o $@ $^ $(LDFLAGS)
+
+move_target: $(OBJ)
+	mv $(OBJ) $(OUT_DIR)
+	mv $(LIBROCKSAW) $(OUT_DIR)
 
 clean:
 	rm -fR $(OUT_DIR)
