@@ -1,8 +1,10 @@
 ## RockSaw
 
+TravisCI: [![Build Status](https://travis-ci.org/mlaccetti/rocksaw.png?branch=master)](https://travis-ci.org/mlaccetti/rocksaw)
+
 A fork of RockSaw (http://www.savarese.com/software/rocksaw/) that includes Maven support.
 
-Please note that the JNI stuff needs a bit of love to build - the Makefile was mangled (by me).
+Please note that the JNI stuff needs a bit of love to build - the Makefile was mangled (by me/Michael Laccetti).
 
 ### About
 
