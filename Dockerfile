@@ -25,6 +25,8 @@ MAINTAINER Michael Laccetti "michael@laccetti.com"
 ENV MAVEN_HOME="/opt/maven"
 ENV MAVEN_VERSION="3.3.9"
 
+RUN echo "http://mirror.leaseweb.com/alpine/v3.3/main" | tee /etc/apk/repositories
+
 RUN apk update && \
     apk upgrade --update && \
     apk add build-base curl vim && \
