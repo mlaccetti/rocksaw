@@ -17,6 +17,7 @@ UNAME  := $(shell uname)
 CYGWIN := $(findstring CYGWIN,$(UNAME))
 DARWIN := $(findstring Darwin,$(UNAME))
 
+MKDIR_P  = mkdir -p
 CC       = gcc
 SHARED   = -shared
 CFLAGS   = -Wall -O2 -pipe -D_REENTRANT
@@ -27,12 +28,12 @@ LDFLAGS  = $(EXTRA_LDFLAGS)
 CPPFLAGS = $(EXTRA_CPPFLAGS)
 LIBNAME  = librocksaw
 LIBEXTENSION = so
+OUT_DIR  = ../../../target/native
 
 ifeq ($(DARWIN),Darwin)
-  JAVA_INCDIR  = $(JAVA_HOME)/include
   LIBEXTENSION = jnilib
-  CPPFLAGS += -I$(JAVA_INCDIR)
-  LDFLAGS += -dynamiclib -noprebind -single_module -framework JavaVM
+  CPPFLAGS += -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/darwin
+  LDFLAGS += -dynamiclib -framework JavaVM
   SHARED =
 else
   ifeq ($(CYGWIN),CYGWIN)
@@ -57,16 +58,16 @@ CLEAN_EXTENSIONS = o $(LIBEXTENSION)
 
 LIBROCKSAW = $(LIBNAME).$(LIBEXTENSION)
 
-all: $(LIBROCKSAW)
+all: directories $(LIBROCKSAW)
+
+directories:
+	$(MKDIR_P) $(OUT_DIR)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $(OUT_DIR)/$@
 
 $(LIBROCKSAW): $(OBJ)
-	$(CC) $(SHARED) -o $@ $^ $(LDFLAGS)
+	$(CC) $(SHARED) -o $(OUT_DIR)/$@ $(OUT_DIR)/$^ $(LDFLAGS)
 
 clean:
-	for extension in $(CLEAN_EXTENSIONS); do \
-		find . -name "*.$$extension" | xargs rm -f ; \
-	done
-	find . -name "*~" | xargs rm -f
+	rm -fR $(OUT_DIR)
