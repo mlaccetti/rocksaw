@@ -20,9 +20,9 @@ DARWIN := $(findstring Darwin,$(UNAME))
 MKDIR_P  = mkdir -p
 CC       = gcc
 SHARED   = -shared
-CFLAGS   = -Wall -O2 -pipe -D_REENTRANT
+CFLAGS   = -Wall -O2 -pipe -pthread
 WINSOCK  = ws2_32
-EXTRA_LDFLAGS  =
+EXTRA_LDFLAGS  = -fPIC -Wl
 EXTRA_CPPFLAGS =
 LDFLAGS  = $(EXTRA_LDFLAGS)
 CPPFLAGS = $(EXTRA_CPPFLAGS)
@@ -48,7 +48,7 @@ else
   JAVA_INCDIR      = $(JDK_HOME)/include
   JAVA_INCDIR_PLAF = $(dir $(wildcard $(JAVA_INCDIR)/*/jni_md.h))
   CPPFLAGS += -I$(JAVA_INCDIR) -I$(JAVA_INCDIR_PLAF)
-  CFLAGS += -ansi -pthread -fPIC -DPIC
+  CFLAGS += -ansi -pthread -DPIC
 endif
 
 SRC := $(shell find . -name "*.c" -print)
@@ -69,7 +69,7 @@ directories:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(LIBROCKSAW): $(OBJ)
-	$(CC) $(SHARED) -o $@ $^ $(LDFLAGS)
+	$(CC) $(SHARED) $(LDFLAGS) -o $@ $<
 
 move_target: $(OBJ)
 	mv $(OBJ) $(OUT_DIR)
