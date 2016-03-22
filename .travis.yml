@@ -3,8 +3,6 @@ sudo: required
 services:
   - docker
 
-language: java
-
 before_install:
   - docker build . mlaccetti/rocksaw:develop
 
