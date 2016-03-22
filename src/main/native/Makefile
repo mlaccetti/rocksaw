@@ -69,7 +69,7 @@ directories:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(LIBROCKSAW): $(OBJ)
-	$(CC) $(SHARED) $(LDFLAGS) -o $@ $<
+	$(CC) $(SHARED) $(LDFLAGS) -o $@ $^
 
 move_target: $(OBJ)
 	mv $(OBJ) $(OUT_DIR)
