@@ -45,10 +45,10 @@ else
     LIBEXTENSION = dll
   endif
 
-  JAVA_INCDIR      = $(JDK_HOME)/include
+  JAVA_INCDIR      = $(JAVA_HOME)/include
   JAVA_INCDIR_PLAF = $(dir $(wildcard $(JAVA_INCDIR)/*/jni_md.h))
   CPPFLAGS += -I$(JAVA_INCDIR) -I$(JAVA_INCDIR_PLAF)
-  CFLAGS += -ansi -pthread -DPIC
+  CFLAGS += -ansi -pthread -DPIC -fPIC
 endif
 
 SRC := $(shell find . -name "*.c" -print)
@@ -77,3 +77,4 @@ move_target: $(OBJ)
 
 clean:
 	rm -fR $(OUT_DIR)
+	rm -f *.$(LIBEXTENSION) *.o
