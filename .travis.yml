@@ -7,4 +7,4 @@ before_install:
   - docker build -t mlaccetti/rocksaw:develop .
 
 script:
-  - docker run --rm $(pwd):/opt/rocksaw mlaccetti/rocksaw:develop
+  - docker run --rm -v $(pwd):/opt/rocksaw mlaccetti/rocksaw:develop
