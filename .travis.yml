@@ -1,0 +1,12 @@
+sudo: required
+
+services:
+  - docker
+
+language: java
+
+before_install:
+  - docker build . mlaccetti/rocksaw:develop
+
+script:
+  - docker run --rm $(pwd):/opt/rocksaw mlaccetti:rocksaw:develop

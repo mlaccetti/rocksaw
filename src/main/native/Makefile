@@ -58,6 +58,8 @@ CLEAN_EXTENSIONS = o $(LIBEXTENSION)
 
 LIBROCKSAW = $(LIBNAME).$(LIBEXTENSION)
 
+.PHONY: clean directories
+
 all: directories $(LIBROCKSAW)
 
 directories:
