@@ -3,9 +3,6 @@ target
 .classpath
 .project
 .scala_dependencies
-*.o
-*.dll
-*.so
-META-INF
-.DS_Store
-.pmd
+*.iml
+.idea
+build

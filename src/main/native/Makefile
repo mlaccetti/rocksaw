@@ -13,37 +13,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.DEFAULT_GOAL = all
-
-UNAME    := $(shell uname -a)
-
-JAVA_INCDIR      = $(JAVA_HOME)/include
-JAVA_INCDIR_PLAF = $(dir $(wildcard $(JAVA_INCDIR)/*/jni_md.h))
+UNAME  := $(shell uname)
+CYGWIN := $(findstring CYGWIN,$(UNAME))
+DARWIN := $(findstring Darwin,$(UNAME))
 
 CC       = gcc
 SHARED   = -shared
-CFLAGS   = -Wall -O2 -pipe -D_REENTRANT -ansi
-LDFLAGS  = 
+CFLAGS   = -Wall -O2 -pipe -D_REENTRANT
+WINSOCK  = ws2_32
+EXTRA_LDFLAGS  =
+EXTRA_CPPFLAGS =
+LDFLAGS  = $(EXTRA_LDFLAGS)
+CPPFLAGS = $(EXTRA_CPPFLAGS)
 LIBNAME  = librocksaw
 LIBEXTENSION = so
 
-ifneq (,$(findstring windows32,$(UNAME)))
-	CC = x86_64-w64-mingw32-gcc
-	CPPFLAGS += -D__int64="long long"
-	LDFLAGS += -lWS2_32
-	LIBEXTENSION = dll
+ifeq ($(DARWIN),Darwin)
+  JAVA_INCDIR  = $(JAVA_HOME)/include
+  LIBEXTENSION = jnilib
+  CPPFLAGS += -I$(JAVA_INCDIR)
+  LDFLAGS += -dynamiclib -noprebind -single_module -framework JavaVM
+  SHARED =
 else
-	CFLAGS += -fpic -pthread
+  ifeq ($(CYGWIN),CYGWIN)
+    override CC += -mno-cygwin
+    CPPFLAGS += -D__int64="long long"
+    LDFLAGS += -Wl,--kill-at -l$(WINSOCK)
+    JDK_HOME := $(shell cygpath $(JDK_HOME))
+    LIBNAME      = rocksaw
+    LIBEXTENSION = dll
+  endif
+
+  JAVA_INCDIR      = $(JDK_HOME)/include
+  JAVA_INCDIR_PLAF = $(dir $(wildcard $(JAVA_INCDIR)/*/jni_md.h))
+  CPPFLAGS += -I$(JAVA_INCDIR) -I$(JAVA_INCDIR_PLAF)
+  CFLAGS += -ansi -pthread -fPIC -DPIC
 endif
 
-CPPFLAGS = -I$(JAVA_INCDIR) -I$(JAVA_INCDIR_PLAF)
-
-SRC := $(wildcard *.c)
+SRC := $(shell find . -name "*.c" -print)
 OBJ := $(SRC:%.c=%.o)
+
+CLEAN_EXTENSIONS = o $(LIBEXTENSION)
 
 LIBROCKSAW = $(LIBNAME).$(LIBEXTENSION)
 
-all: $(OBJ) $(LIBROCKSAW)
+all: $(LIBROCKSAW)
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
@@ -52,5 +66,7 @@ $(LIBROCKSAW): $(OBJ)
 	$(CC) $(SHARED) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f *.o
-	rm -f *.$(LIBEXTENSION)
+	for extension in $(CLEAN_EXTENSIONS); do \
+		find . -name "*.$$extension" | xargs rm -f ; \
+	done
+	find . -name "*~" | xargs rm -f

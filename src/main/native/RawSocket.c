@@ -1,6 +1,5 @@
-/*
- * Copyright 2004-2007 Daniel F. Savarese
- * Copyright 2009 Savarese Software Research Corporation
+/* Copyright 2004-2008 Daniel F. Savarese
+ * Copyright 2009-2014 Savarese Software Research Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +34,12 @@
 #  include <unistd.h>
 #  include <sys/time.h>
 
+#  ifdef ROCKSAW_USE_POLL
+
+#    include <poll.h>
+
+#  endif
+
 #endif
 
 #include "RawSocket.h"
@@ -58,10 +63,23 @@ static int getintsockopt(int socket, int level, int option) {
   socklen_t size   = sizeof(value);
   int result = getsockopt(socket, level, option, (void*)&value, &size);
 
-  if(result < 0)
+  if(result < 0) {
     return result;
+  }
 
   return value;
+}
+
+
+static void milliseconds_to_timeval(int milliseconds, struct timeval *value) {
+  int seconds = milliseconds / 1000;
+
+  if(seconds > 0) {
+    milliseconds-=(seconds*1000);
+  }
+
+  value->tv_sec  = seconds;
+  value->tv_usec = milliseconds * 1000;
 }
 
 
@@ -69,16 +87,9 @@ static int settimeout(int socket, int option, int timeout) {
 #if defined(_WIN32)
   return setintsockopt(socket, SOL_SOCKET, option, timeout);
 #else
-  int seconds;
   struct timeval value;
-  
-  seconds = timeout / 1000;
 
-  if(seconds > 0)
-    timeout-=(seconds*1000);
-
-  value.tv_sec  = seconds;
-  value.tv_usec = timeout * 1000;
+  milliseconds_to_timeval(timeout, &value);
 
   return setsockopt(socket, SOL_SOCKET, option, (void*)&value, sizeof(value));
 #endif
@@ -113,11 +124,14 @@ init_sockaddr_in(JNIEnv *env, struct sockaddr_in *sin, jbyteArray address) {
 
 
 static struct sockaddr*
-init_sockaddr_in6(JNIEnv *env, struct sockaddr_in6 *sin6, jbyteArray address) {
+init_sockaddr_in6(JNIEnv *env, struct sockaddr_in6 *sin6, jbyteArray address,
+                  int scope_id)
+{
   jbyte *buf;
 
   memset(sin6, 0, sizeof(struct sockaddr_in6));
   sin6->sin6_family = PF_INET6;
+  sin6->sin6_scope_id = scope_id;
   buf = (*env)->GetByteArrayElements(env, address, NULL);
   memcpy(&sin6->sin6_addr, buf, sizeof(sin6->sin6_addr));
   (*env)->ReleaseByteArrayElements(env, address, buf, JNI_ABORT);
@@ -210,12 +224,13 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1getErrorMessage
  *
  * Returns zero if the socket is ready for I/O.
  */
+#ifndef ROCKSAW_USE_POLL
 JNIEXPORT jint JNICALL
 Java_com_savarese_rocksaw_net_RawSocket__1_1select
-(JNIEnv *env, jclass cls,
- jint socket, jboolean read, jint seconds, jint microseconds)
+(JNIEnv *env, jclass cls,  jint socket, jboolean read, jint milliseconds)
 {
   int result;
+
   struct timeval timeout;
   fd_set *rset = NULL, *wset = NULL, errset, fdset;
 
@@ -223,9 +238,8 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1select
   FD_ZERO(&errset);
   FD_SET(socket, &fdset);
   FD_SET(socket, &errset);
-
-  timeout.tv_sec  = seconds;
-  timeout.tv_usec = microseconds;
+  
+  milliseconds_to_timeval(milliseconds, &timeout);
 
   if(read)
     rset = &fdset;
@@ -240,17 +254,49 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1select
     else if(FD_ISSET(socket, &fdset))
       result = 0;
     else {
-#if defined(_WIN32)
+#  if defined(_WIN32)
       errno = WSAETIMEDOUT;
-#else
+#  else
       errno = EAGAIN;
-#endif
+#  endif
       result = -1;
     }
   }
 
   return result;
 }
+
+#else
+
+JNIEXPORT jint JNICALL
+Java_com_savarese_rocksaw_net_RawSocket__1_1select
+(JNIEnv *env, jclass cls, jint socket, jboolean read, jint milliseconds)
+{
+  int result;
+
+  struct pollfd fds[1];
+  int timeout = milliseconds;
+
+  if(timeout == 0) {
+    timeout = -1;
+  }
+
+  fds[0].fd = socket;
+  fds[0].events = (read ? POLLIN : POLLOUT);
+  fds[0].revents = 0;
+
+  result = poll(fds, 1, timeout);
+
+  if(result == 1) {
+    result = 0;
+  } else if(result == -1) {
+    errno = EAGAIN;
+  }
+
+  return result;
+}
+
+#endif
 
 /*
  * Class:     com_savarese_rocksaw_net_RawSocket
@@ -295,7 +341,8 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1socket
  */
 JNIEXPORT jint JNICALL
 Java_com_savarese_rocksaw_net_RawSocket__1_1bind
-(JNIEnv *env, jclass cls, jint socket, jint family, jbyteArray address)
+(JNIEnv *env, jclass cls, jint socket, jint family, jbyteArray address,
+ jint scope_id)
 {
   struct sockaddr *saddr;
   socklen_t socklen;
@@ -309,7 +356,7 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1bind
     saddr = init_sockaddr_in(env, &sin.sin, address);
   } else if(family == PF_INET6) {
     socklen = sizeof(sin.sin6);
-    saddr = init_sockaddr_in6(env, &sin.sin6, address);
+    saddr = init_sockaddr_in6(env, &sin.sin6, address, scope_id);
   } else
     return -1;
 
@@ -382,7 +429,7 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1query_1routing_1interface
     saddr = init_sockaddr_in(env, &sin.sin, destination);
   } else if(family == PF_INET6) {
     socklen = sizeof(sin.sin6);
-    saddr = init_sockaddr_in6(env, &sin.sin6, destination);
+    saddr = init_sockaddr_in6(env, &sin.sin6, destination, 0);
   } else
     return -1;
 
@@ -518,7 +565,8 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1recvfrom2
 JNIEXPORT jint JNICALL
 Java_com_savarese_rocksaw_net_RawSocket__1_1sendto
 (JNIEnv *env, jclass cls, jint socket,
- jbyteArray data, jint offset, jint len, jint family, jbyteArray address)
+ jbyteArray data, jint offset, jint len, jint family, jbyteArray address,
+ jint scope_id)
 {
   int result;
   jbyte *buf;
@@ -534,7 +582,7 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1sendto
     saddr = init_sockaddr_in(env, &sin.sin, address);
   } else if(family == PF_INET6) {
     socklen = sizeof(sin.sin6);
-    saddr = init_sockaddr_in6(env, &sin.sin6, address);
+    saddr = init_sockaddr_in6(env, &sin.sin6, address, scope_id);
   } else {
     errno = EINVAL;
     return errno;

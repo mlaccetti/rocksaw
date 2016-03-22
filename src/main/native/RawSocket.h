@@ -45,7 +45,7 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1PF_1INET6
 
 JNIEXPORT jint JNICALL
 Java_com_savarese_rocksaw_net_RawSocket__1_1select
-(JNIEnv *env, jclass cls, jint, jboolean, jint, jint);
+(JNIEnv *env, jclass cls, jint, jboolean, jint);
 
 JNIEXPORT jint JNICALL
 Java_com_savarese_rocksaw_net_RawSocket__1_1socket
@@ -53,7 +53,7 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1socket
 
 JNIEXPORT jint JNICALL
 Java_com_savarese_rocksaw_net_RawSocket__1_1bind
-(JNIEnv *, jclass, jint, jint, jbyteArray);
+(JNIEnv *, jclass, jint, jint, jbyteArray, jint);
 
 JNIEXPORT jint JNICALL
 Java_com_savarese_rocksaw_net_RawSocket__1_1bindDevice
@@ -81,7 +81,7 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1recvfrom2
 
 JNIEXPORT jint JNICALL
 Java_com_savarese_rocksaw_net_RawSocket__1_1sendto
-(JNIEnv *, jclass, jint, jbyteArray, jint, jint, jint, jbyteArray);
+(JNIEnv *, jclass, jint, jbyteArray, jint, jint, jint, jbyteArray, jint);
 
 JNIEXPORT jboolean JNICALL
 Java_com_savarese_rocksaw_net_RawSocket__1_1isErrorEAGAIN
