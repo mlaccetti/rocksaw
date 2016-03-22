@@ -1,6 +1,10 @@
-=====
-ABOUT
-=====
+## RockSaw
+
+A fork of RockSaw (http://www.savarese.com/software/rocksaw/) that includes Maven support.
+
+Please note that the JNI stuff needs a bit of love to build - the Makefile was mangled (by me).
+
+### About
 
 RockSaw is a simple API for performing network I/O with raw
 sockets in Java.
@@ -11,9 +15,7 @@ IPv6 support was graciously funded by ByteSphere Technologies
 Commercial support is provided by Savarese Software Research
 Corporation (www.savarese.com).
 
-============
-REQUIREMENTS
-============
+### Requirements
 
 The 1.0.1 version of RockSaw has been compiled and tested on
 Linux, Win32 with Cygwin/MinGW/Winsock or Visual C++, Solaris 8/9/10,
@@ -35,9 +37,7 @@ Win32 platforms.
 
 Winsock2 (ws2_32.dll) is required on Win32 platforms.
 
-=========
-COMPILING
-=========
+### Compiling
 
 You must have the JDK_HOME environment variable set and pointing to
 the directory where the Java Development Kit is installed.  Otherwise,
@@ -85,8 +85,7 @@ On Mac OS X, the shared library will be called:
 
   librocksaw.jnilib
 
-J2SE 1.4/1.3/1.2
-------------------
+#### J2SE 1.4/1.3/1.2
 
 You may have to override the javac.args, javac.source, and
 javac.target properties because the -Xlint:unchecked parameter
@@ -95,8 +94,7 @@ J2SE 1.3:
 
  ant -Djavac.args="" -Djavac.source=1.3 -Djavac.target=1.3 jar
 
-Note about make
----------------
+#### Note about make
 
 The default Makefile requires GNU make.  Prior to version 1.0.1,
 build.properties used to define jni.make as gmake, but the most
@@ -109,8 +107,7 @@ common case, you must now use:
 on systems where the default make command is not GNU make (most
 likely Solaris and some flavors of BSD).
 
-Win32: CYGWIN
--------------
+#### Win32: CYGWIN
 
 [Note, this section no longer applies now that 'make' is used by
  default instead of 'gmake'.]
@@ -124,8 +121,7 @@ Therefore, you may have to use the following command line:
 
 Alternatively, you can edit the build.properties file.
 
-Win32: Visual C++
------------------
+#### Win32: Visual C++
 
 To compile using Visual C++, you have to override the default
 compiler command, make command, and makefile properties:
@@ -145,8 +141,7 @@ you've run either the vcvars.bat or vsvars32.bat command
 (depending on the version of Visual C++ you're using) to set
 your paths for the command line tools.
 
-Darwin/MacOS X
---------------
+#### Darwin/MacOS X
 
 Be sure to set JAVA_HOME to the right location.  It is usually
   /System/Library/Frameworks/JavaVM.framework/Home
@@ -156,8 +151,7 @@ you will need to install JDK 1.5 or greater.
   export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Home
   ant -Djni.make=make
 
-Ping Example
-------------
+#### Ping Example
 
 The example Ping program can be compiled separately with the
 example.compile target, but requires VServ TCP/IP to compile.  The
@@ -173,32 +167,26 @@ could run a command similar to the following:
   java -classpath build.src:lib/rocksaw-1.0.0.jar:lib/vserv-tcpip-0.9.1.jar \
        -Djava.library.path=lib/ example.Ping 10.0.0.1 10
 
-=========
-LICENSING
-=========
+### Licensing
 
 RockSaw is
   Copyright 2004-2007 by Daniel F. Savarese
-  Copyright 2007-2009 by Savarese Softwar Research Corporation
+  Copyright 2007-2009 by Savarese Software Research Corporation
 and licensed under the Apache License 2.0 as described in the files:
 
   LICENSE
   NOTICE
 
 
-=====
-NOTES
-=====
+### Notes
 
 On most operating systems, you must have root access or administrative
 privileges to use raw sockets.
 
-The API is minimalist, yet functional.  Don't hesitate to submit
-patches that enhance the functionality.
+The API is minimalist, yet functional. Don't hesitate to submit patches
+that enhance the functionality.
 
 
-=======
-CONTACT
-=======
+### Contact
 
 http://www.savarese.com/contact.html

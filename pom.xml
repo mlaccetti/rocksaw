@@ -14,18 +14,6 @@
   </properties>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-      </resource>
-      <resource>
-        <directory>src/main/native</directory>
-        <includes>
-          <include>**/*.dll</include>
-          <include>**/*.so</include>
-        </includes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -69,6 +57,15 @@
           <source>1.8</source>
           <target>1.8</target>
           <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.19.1</version>
+        <configuration>
+          <forkMode>once</forkMode>
+          <argLine>-Djava.library.path=${project.basedir}/target/native</argLine>
         </configuration>
       </plugin>
       <plugin>

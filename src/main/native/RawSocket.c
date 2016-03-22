@@ -45,9 +45,13 @@
 #include "RawSocket.h"
 
 /*
+ * Empty main
+ */
+int main (void) { return 0; }
+
+/*
  * Utility functions.
  */
-
 static int setintsockopt(int socket, int level, int option, int value);
 static int getintsockopt(int socket, int level, int option);
 static int settimeout(int socket, int option, int timeout);
@@ -56,7 +60,6 @@ static int gettimeout(int socket, int option);
 static int setintsockopt(int socket, int level, int option, int value) {
   return setsockopt(socket, level, option, (void*)&value, sizeof(value));
 }
-
 
 static int getintsockopt(int socket, int level, int option) {
   int value  = -1;
@@ -70,7 +73,6 @@ static int getintsockopt(int socket, int level, int option) {
   return value;
 }
 
-
 static void milliseconds_to_timeval(int milliseconds, struct timeval *value) {
   int seconds = milliseconds / 1000;
 
@@ -81,7 +83,6 @@ static void milliseconds_to_timeval(int milliseconds, struct timeval *value) {
   value->tv_sec  = seconds;
   value->tv_usec = milliseconds * 1000;
 }
-
 
 static int settimeout(int socket, int option, int timeout) {
 #if defined(_WIN32)
@@ -94,7 +95,6 @@ static int settimeout(int socket, int option, int timeout) {
   return setsockopt(socket, SOL_SOCKET, option, (void*)&value, sizeof(value));
 #endif
 }
-
 
 static int gettimeout(int socket, int option) {
   int result;
@@ -109,7 +109,6 @@ static int gettimeout(int socket, int option) {
   return (value.tv_sec * 1000 + value.tv_usec / 1000);
 }
 
-
 static struct sockaddr*
 init_sockaddr_in(JNIEnv *env, struct sockaddr_in *sin, jbyteArray address) {
   jbyte *buf;
@@ -121,7 +120,6 @@ init_sockaddr_in(JNIEnv *env, struct sockaddr_in *sin, jbyteArray address) {
   (*env)->ReleaseByteArrayElements(env, address, buf, JNI_ABORT);
   return (struct sockaddr *)sin;
 }
-
 
 static struct sockaddr*
 init_sockaddr_in6(JNIEnv *env, struct sockaddr_in6 *sin6, jbyteArray address,
@@ -189,8 +187,8 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1getErrorMessage
 
 #if defined(_WIN32)
     int formatted =
-      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-                    FORMAT_MESSAGE_FROM_SYSTEM | 
+      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                    FORMAT_MESSAGE_FROM_SYSTEM |
                     FORMAT_MESSAGE_IGNORE_INSERTS,
                     NULL, errno,
                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
@@ -238,7 +236,7 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1select
   FD_ZERO(&errset);
   FD_SET(socket, &fdset);
   FD_SET(socket, &errset);
-  
+
   milliseconds_to_timeval(milliseconds, &timeout);
 
   if(read)
@@ -519,7 +517,7 @@ Java_com_savarese_rocksaw_net_RawSocket__1_1recvfrom2
   void *addr;
   socklen_t socklen;
   size_t addrlen;
-  
+
   if(family == PF_INET) {
     socklen = sizeof(sin.sin);
     addrlen = sizeof(sin.sin.sin_addr);

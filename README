@@ -1,7 +1,0 @@
-A fork of RockSaw (http://www.savarese.com/software/rocksaw/) that includes Maven support.
-
-Please note that the JNI stuff needs a bit of love to build - the Makefile was mangled (by me).
-
-Maven Repository:
-
-You can find RockSaw deployed here: https://dev.limone.me/nexus/content/groups/public/
