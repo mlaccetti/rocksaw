@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.mlaccetti</groupId>
   <artifactId>rocksaw</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1-SNAPSHOT</version>
 
   <name>RockSaw Raw Socket Library</name>
   <description>RockSaw is a simple API for performing network I/O with IPv4 and IPv6 raw sockets in Java</description>
@@ -13,6 +13,19 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <source>8</source>
   </properties>
+
+  <scm>
+    <url>https://github.com/mlaccetti/rocksaw</url>
+    <connection>scm:git:git@github.com:mlaccetti/rocksaw.git</connection>
+    <developerConnection>scm:git:git@github.com:mlaccetti/rocksaw.git</developerConnection>
+  </scm>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <build>
     <plugins>
@@ -108,7 +121,7 @@
           </execution>
         </executions>
         <configuration>
-          <additionalparam>-Xdoclint:none</additionalparam>
+          <additionalJOption>-Xdoclint:none</additionalJOption>
         </configuration>
       </plugin>
       <plugin>

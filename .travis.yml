@@ -1,3 +1,8 @@
+env:
+  global:
+    - secure: FrZ4xrryYAwdYHQCNtlryJnbgMMxsZB/+oDtoWA38M8SDbNEVTvkgW/RwA3yGtcma4ddKDevb0HAfxK2sVR0JcrGZhoqHGKARcgWJvFWbCp94/R9P+xLQ7NtMyk2v96c0A+1OC9m17ywP0fOaRfqtf5PCy477kPASEkD38vwjL0=
+    - secure: EXWjmbRNGUgqd+2an9bKJXtvIrpKSKcr9oUwobSvhHTcc89MSmjzIIBDR6rZGWdctHzZEADADXZKpAKq1FaNXI3UyRWxGwfDt46RQ9loy1JZN2imfKCbH0kTzpATHEaxTKs3mNUQ9Sh4XLZwTmd6Ea+PRi1CASCCqB7bQsdUhPE=
+
 sudo: required
 
 services:
@@ -5,10 +10,24 @@ services:
 
 cache:
   directories:
-  - $HOME/.m2
+    - "$HOME/.m2"
 
 before_install:
   - docker build -t mlaccetti/rocksaw:develop .
 
 script:
   - docker run --rm -v $(pwd):/opt/rocksaw -v $HOME/.m2:/root/.m2 mlaccetti/rocksaw:develop
+
+deploy:
+  - provider: script
+      script: docker run --rm -v $(pwd):/opt/rocksaw -v $HOME/.m2:/root/.m2 mlaccetti/rocksaw:develop mvn deploy --settings deploy/maven-settings.xml
+      on:
+        all_branches: true
+        condition: $TRAVIS_BRANCH =~ ^(feature/.*)$
+  - provider: script
+    script: docker run --rm -v $(pwd):/opt/rocksaw -v $HOME/.m2:/root/.m2 mlaccetti/rocksaw:develop mvn deploy --settings deploy/maven-settings.xml
+    on:
+      branch: master
+      tags: true
+
+
