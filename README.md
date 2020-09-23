@@ -20,13 +20,13 @@ Corporation (www.savarese.com).
 ### Requirements
 
 The 1.1.0 version of RockSaw has been compiled and tested on Linux,
-Win32 with Cygwin/MinGW/Winsock or Visual C++, and Mac OS X 10.11.4. It
+Win32 with Cygwin/MinGW or Visual C++, and Mac OS X 10.15. It
 should compile on other POSIX systems using the GNU tool chain.
 
 No binary distributions are presently released; you will have to compile
 for yourself.
 
-Java 1.8 or greater is required to compile/run.
+Java 11 (most recent LTS) or greater is required to compile/run.
 
 ### Compiling
 
