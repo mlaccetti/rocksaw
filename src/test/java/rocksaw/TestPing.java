@@ -17,7 +17,7 @@
 package rocksaw;
 
 import com.savarese.rocksaw.net.RawSocket;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.savarese.vserv.tcpip.ICMPEchoPacket;
 import org.savarese.vserv.tcpip.ICMPPacket;
 import org.savarese.vserv.tcpip.IPPacket;
@@ -37,6 +37,8 @@ import static com.savarese.rocksaw.net.RawSocket.PF_INET;
 import static com.savarese.rocksaw.net.RawSocket.PF_INET6;
 import static com.savarese.rocksaw.net.RawSocket.getProtocolByName;
 import static org.savarese.vserv.tcpip.ICMPPacket.OFFSET_ICMP_CHECKSUM;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * <p>
@@ -67,6 +69,8 @@ public class TestPing {
       final InetAddress address = InetAddress.getByName(localhost);
       final String hostname = address.getCanonicalHostName();
       final String hostaddr = address.getHostAddress();
+
+      log.debug("Connecting to {} - {}", hostname, hostaddr);
 
       // Ping programs usually use the process ID for the identifier,
       // but we can't get it and this is only a demo.
@@ -138,6 +142,7 @@ public class TestPing {
     } catch (final Exception e) {
       executor.shutdown();
       e.printStackTrace();
+      fail(String.format("Unexpected exception trying to execute test: %s", e.getMessage()));
     }
   }
 
